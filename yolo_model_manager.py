@@ -411,4 +411,73 @@ class YOLODebugInfo:
             ax.set_xlabel('信頼度')
             ax.set_ylabel('頻度')
             ax.set_title('検出信頼度の分布')
-            st.pyplot(fig) 
+            st.pyplot(fig)
+
+
+class YOLOModelManager:
+    """YOLOv8モデルの管理を担当するクラス"""
+    
+    def __init__(self):
+        """モデルマネージャーの初期化"""
+        self.model = None
+        self.model_name = "yolov8n.pt"
+    
+    def load_model(self, model_name: str = "yolov8n.pt") -> bool:
+        """
+        モデルを読み込みます
+        
+        Args:
+            model_name: モデル名
+            
+        Returns:
+            読み込み成功時はTrue
+        """
+        try:
+            self.model = YOLOModelLoader.load_model(model_name)
+            self.model_name = model_name
+            return self.model is not None
+        except Exception as e:
+            st.error(f"モデルの読み込みに失敗しました: {e}")
+            return False
+    
+    def detect_objects(
+        self, 
+        image, 
+        confidence: float = 0.5, 
+        nms_threshold: float = 0.4
+    ):
+        """
+        物体検出を実行します
+        
+        Args:
+            image: 入力画像
+            confidence: 信頼度閾値
+            nms_threshold: NMS閾値
+            
+        Returns:
+            検出結果
+        """
+        if self.model is None:
+            st.error("モデルが読み込まれていません")
+            return None
+        
+        try:
+            # 検出実行
+            results = self.model(
+                image,
+                conf=confidence,
+                iou=nms_threshold,
+                verbose=False
+            )
+            return results[0] if results else None
+        except Exception as e:
+            st.error(f"検出中にエラーが発生しました: {e}")
+            return None
+    
+    def get_available_models(self) -> List[str]:
+        """利用可能なモデルのリストを取得"""
+        return YOLOModelLoader.get_available_models()
+    
+    def get_model_info(self, model_name: str) -> Dict[str, Any]:
+        """モデルの詳細情報を取得"""
+        return YOLOModelLoader.get_model_info(model_name) 
