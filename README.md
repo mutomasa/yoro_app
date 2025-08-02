@@ -280,7 +280,31 @@ cd yoro_app
 pip install -e .
 ```
 
-### 2. アプリケーション起動
+### 2. 日本語フォントの設定（オプション）
+
+日本語表示の警告を解決するために、日本語フォントをインストールできます：
+
+```bash
+# 日本語フォントインストールスクリプトを実行
+python install_japanese_fonts.py
+```
+
+または、手動でインストール：
+
+**Ubuntu/Debian:**
+```bash
+sudo apt update
+sudo apt install -y fonts-noto-cjk fonts-ipafont
+fc-cache -fv
+```
+
+**CentOS/RHEL:**
+```bash
+sudo yum install -y google-noto-cjk-fonts ipa-gothic-fonts
+fc-cache -fv
+```
+
+### 3. アプリケーション起動
 ```bash
 # Streamlitアプリケーションを起動
 streamlit run app.py
