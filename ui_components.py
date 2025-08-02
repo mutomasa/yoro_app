@@ -10,6 +10,97 @@ import requests
 from io import BytesIO
 
 
+class YOLOUIComponents:
+    """YOLOアプリケーションのUIコンポーネント管理クラス"""
+    
+    def __init__(self):
+        """UIコンポーネントの初期化"""
+        pass
+
+
+class ImageUploadComponent:
+    """画像アップロードコンポーネント"""
+    
+    @staticmethod
+    def display_image_upload():
+        """画像アップロードUIを表示"""
+        st.header("📷 画像アップロード")
+        
+        upload_method = st.radio(
+            "アップロード方法を選択",
+            ["ファイルアップロード", "URL入力", "サンプル画像", "カメラ撮影"],
+            horizontal=True
+        )
+        
+        if upload_method == "ファイルアップロード":
+            return InputManager._load_uploaded_image()
+        elif upload_method == "URL入力":
+            return InputManager._load_url_image()
+        elif upload_method == "サンプル画像":
+            return InputManager._load_sample_image()
+        elif upload_method == "カメラ撮影":
+            return InputManager._load_camera_image()
+        
+        return None
+
+
+class DetectionResultComponent:
+    """検出結果表示コンポーネント"""
+    
+    @staticmethod
+    def display_detection_results(image, results, show_labels=True, show_confidence=True, show_boxes=True):
+        """検出結果を表示"""
+        if results is None:
+            st.warning("検出結果がありません")
+            return
+        
+        st.header("🔍 検出結果")
+        
+        # 結果の可視化
+        if hasattr(results, 'plot'):
+            # YOLO結果オブジェクトの場合
+            plotted_image = results.plot()
+            st.image(plotted_image, caption="検出結果", use_container_width=True)
+        else:
+            st.image(image, caption="元画像", use_container_width=True)
+        
+        # 検出統計
+        if hasattr(results, 'boxes') and results.boxes is not None:
+            st.subheader("📊 検出統計")
+            st.write(f"検出物体数: {len(results.boxes)}")
+            
+            if len(results.boxes) > 0:
+                confidences = results.boxes.conf.cpu().numpy()
+                st.write(f"平均信頼度: {confidences.mean():.3f}")
+                st.write(f"最高信頼度: {confidences.max():.3f}")
+
+
+class ModelSettingsComponent:
+    """モデル設定コンポーネント"""
+    
+    @staticmethod
+    def display_model_settings():
+        """モデル設定UIを表示"""
+        st.subheader("🔧 モデル設定")
+        
+        from yolo_model_manager import YOLOModelLoader
+        available_models = YOLOModelLoader.get_available_models()
+        
+        selected_model = st.selectbox(
+            "YOLOv8モデルを選択",
+            available_models,
+            index=0,
+            help="使用するYOLOv8モデルを選択してください"
+        )
+        
+        # モデル情報の表示
+        model_info = YOLOModelLoader.get_model_info(selected_model)
+        if model_info:
+            st.info(f"**{model_info['name']}**: {model_info['description']}")
+        
+        return selected_model
+
+
 class SidebarManager:
     """サイドバーの管理を担当するクラス"""
     
