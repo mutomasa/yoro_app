@@ -19,7 +19,38 @@ class YOLOv8Visualizer:
     def __init__(self):
         """可視化クラスの初期化"""
         # 日本語フォントの設定
-        plt.rcParams['font.family'] = ['DejaVu Sans', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', 'Takao', 'IPAexGothic', 'IPAPGothic', 'VL PGothic', 'Noto Sans CJK JP']
+        import matplotlib.font_manager as fm
+        
+        # 利用可能な日本語フォントを検索
+        japanese_fonts = [
+            'Noto Sans CJK JP',
+            'Noto Sans JP', 
+            'Hiragino Sans',
+            'Yu Gothic',
+            'Meiryo',
+            'Takao',
+            'IPAexGothic',
+            'IPAPGothic',
+            'VL PGothic',
+            'DejaVu Sans'
+        ]
+        
+        # 利用可能なフォントを確認
+        available_fonts = [f.name for f in fm.fontManager.ttflist]
+        selected_font = None
+        
+        for font in japanese_fonts:
+            if font in available_fonts:
+                selected_font = font
+                break
+        
+        if selected_font:
+            plt.rcParams['font.family'] = selected_font
+        else:
+            # フォールバック: デフォルトフォントを使用し、警告を抑制
+            plt.rcParams['font.family'] = 'DejaVu Sans'
+            import warnings
+            warnings.filterwarnings('ignore', category=UserWarning, module='matplotlib')
     
     @staticmethod
     def create_processing_flow_diagram() -> plt.Figure:
